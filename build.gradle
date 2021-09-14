@@ -4,14 +4,14 @@ plugins {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(11)
+        languageVersion = JavaLanguageVersion.of(16)
     }
 }
 
 compileJava {
     options.encoding = 'UTF-8'
-    sourceCompatibility = '11'
-    targetCompatibility = '11'
+    sourceCompatibility = '16'
+    targetCompatibility = '16'
 }
 
 application {
