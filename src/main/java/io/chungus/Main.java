@@ -1,5 +1,7 @@
 package io.chungus;
 
+import io.chungus.sub.BaseCommand;
+import io.chungus.sub.CompareCommand;
 import net.jbock.util.SuperResult;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -32,13 +34,16 @@ public class Main {
                 .findGitDir() // scan up the file system tree
                 .build();
         Git git = new Git(repository);
+        BaseCommand baseCommand = new BaseCommand(git, command);
+        String base = baseCommand.findBase();
         switch (command.subcommand()) {
-            case BASE:
-                new BaseCommand(git, command).findBase();
-                return;
-            default:
-                throw new IllegalArgumentException("unknown command: " + command.subcommand());
+            case BASE -> {
+                System.out.println("Branch 1: " + command.sourceBranch());
+                System.out.println("Branch 2: " + command.targetBranch());
+                System.out.println("BASE: " + base);
+            }
+            case COMPARE -> new CompareCommand(git, command, base).compare();
+            default -> throw new IllegalArgumentException("unknown command: " + command.subcommand());
         }
     }
-
 }
