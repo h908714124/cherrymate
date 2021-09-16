@@ -2,10 +2,12 @@ package io.chungus;
 
 import io.chungus.sub.BaseCommand;
 import io.chungus.sub.CompareCommand;
+import io.chungus.util.GetCommits;
 import net.jbock.util.SuperResult;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
 import java.io.IOException;
@@ -34,7 +36,10 @@ public class Main {
                 .findGitDir() // scan up the file system tree
                 .build();
         Git git = new Git(repository);
-        BaseCommand baseCommand = new BaseCommand(git, command);
+        GetCommits getCommits = new GetCommits(git);
+        List<RevCommit> sourceCommits = getCommits.getCommits(command.sourceBranch());
+        List<RevCommit> targetCommits = getCommits.getCommits(command.targetBranch());
+        BaseCommand baseCommand = new BaseCommand(sourceCommits, targetCommits);
         String base = baseCommand.findBase();
         switch (command.subcommand()) {
             case BASE -> {
@@ -42,7 +47,7 @@ public class Main {
                 System.out.println("Branch 2: " + command.targetBranch());
                 System.out.println("BASE: " + base);
             }
-            case COMPARE -> new CompareCommand(git, command, base).compare();
+            case COMPARE -> new CompareCommand(sourceCommits, targetCommits, base).compare();
             default -> throw new IllegalArgumentException("unknown command: " + command.subcommand());
         }
     }

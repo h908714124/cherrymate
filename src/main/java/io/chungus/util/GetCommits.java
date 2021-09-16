@@ -18,10 +18,10 @@ public class GetCommits {
         this.git = git;
     }
 
-    public List<String> getCommits(String branch) throws GitAPIException {
+    public List<RevCommit> getCommits(String branch) throws GitAPIException {
         git.checkout().setName(branch).call();
         Stream<RevCommit> stream = StreamSupport.stream(git.log().call().spliterator(), false);
-        List<String> result = new ArrayList<>(stream.map(c -> c.getId().name()).toList());
+        List<RevCommit> result = new ArrayList<>(stream.toList());
         Collections.reverse(result);
         return result;
     }

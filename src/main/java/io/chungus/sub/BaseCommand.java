@@ -1,9 +1,8 @@
 package io.chungus.sub;
 
 import io.chungus.ChungusCommand;
-import io.chungus.util.GetCommits;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.revwalk.RevCommit;
 
 import java.util.HashSet;
 import java.util.List;
@@ -11,17 +10,19 @@ import java.util.Set;
 
 public class BaseCommand {
 
-    private final Git git;
-    private final ChungusCommand command;
+    private final List<RevCommit> sourceCommits;
+    private final List<RevCommit> targetCommits;
 
-    public BaseCommand(Git git, ChungusCommand command) {
-        this.git = git;
-        this.command = command;
+    public BaseCommand(
+            List<RevCommit> sourceCommits,
+            List<RevCommit> targetCommits) {
+        this.sourceCommits = sourceCommits;
+        this.targetCommits = targetCommits;
     }
 
-    public String findBase() throws GitAPIException {
-        List<String> source = new GetCommits(git).getCommits(command.sourceBranch());
-        Set<String> target = new HashSet<>(new GetCommits(git).getCommits(command.targetBranch()));
+    public String findBase() {
+        List<String> source = sourceCommits.stream().map(c -> c.getId().name()).toList();
+        Set<String> target = new HashSet<>(targetCommits.stream().map(c -> c.getId().name()).toList());
         for (int i = 0; i < source.size(); i++) {
             String sha = source.get(i);
             if (!target.contains(sha)) {
